@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ekran Paylaşım Uygulaması</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4361ee',
+                        secondary: '#3f37c9',
+                        dark: '#0f172a',
+                        light: '#f8fafc'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .video-container {
+            position: relative;
+            padding-top: 56.25%;
+        }
+        
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            object-fit: cover;
+            background: #0f172a;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(67, 97, 238, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+        }
+        
+        .connection-status {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-dark text-light min-h-screen flex flex-col">
+    <header class="py-6 px-4 sm:px-8 border-b border-slate-700">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+                    <i class="fas fa-display text-white text-xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold">EkranPaylaş</h1>
+            </div>
+            <div class="connection-status flex items-center space-x-2 px-4 py-2 rounded-full bg-slate-800">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <span class="text-sm">Bağlantı Yok</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow py-8 px-4 sm:px-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Yerel Ekran -->
+                <div class="bg-slate-800 rounded-xl p-6 shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-user mr-2 text-primary"></i> Sizin Ekranınız
+                    </h2>
+                    <div class="video-container mb-4">
+                        <video id="localVideo" autoplay muted playsinline class="border-2 border-dashed border-slate-600"></video>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <button id="shareBtn" class="flex-1 bg-primary hover:bg-secondary text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center pulse">
+                            <i class="fas fa-share-alt mr-2"></i> Paylaşımı Başlat
+                        </button>
+                        <button id="stopBtn" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center" disabled>
+                            <i class="fas fa-stop mr-2"></i> Durdur
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Uzak Ekran -->
+                <div class="bg-slate-800 rounded-xl p-6 shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-users mr-2 text-primary"></i> Bağlı Cihazlar
+                    </h2>
+                    <div class="video-container mb-4">
+                        <video id="remoteVideo" autoplay playsinline class="border-2 border-dashed border-slate-600"></video>
+                    </div>
+                    <div class="bg-slate-900 rounded-lg p-4 mb-4">
+                        <h3 class="font-bold text-slate-400 mb-2">Bağlantı Bilgileri</h3>
+                        <div class="flex items-center space-x-2 mb-3">
+                            <span class="text-sm">Bağlantı ID:</span>
+                            <span id="connectionId" class="font-mono bg-slate-800 px-2 py-1 rounded text-sm">---</span>
+                            <button id="copyBtn" class="ml-auto text-slate-400 hover:text-white">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="text-sm text-slate-400">
+                            Bu ID'yi paylaşarak başkalarının ekranınızı görmesini sağlayabilirsiniz.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 bg-slate-800 rounded-xl p-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-plug mr-2 text-primary"></i> Bağlan
+                </h2>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <input 
+                        type="text" 
+                        id="remoteIdInput" 
+                        placeholder="Bağlanmak için ID girin" 
+                        class="flex-grow bg-slate-900 border border-slate-700 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                    <button id="connectBtn" class="bg-primary hover:bg-secondary text-white font-bold py-3 px-6 rounded-lg transition-all">
+                        <i class="fas fa-link mr-2"></i> Bağlan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-6 px-4 sm:px-8 border-t border-slate-700">
+        <div class="max-w-6xl mx-auto text-center text-slate-500 text-sm">
+            <p>© 2023 EkranPaylaş Uygulaması | Gerçek zamanlı ekran paylaşımı için</p>
+        </div>
+    </footer>
+
+    <script>
+        // PeerJS nesnesi ve değişkenler (PeerJS'nin ücretsiz sunucularını kullanıyor)
+        let peer;
+        let localStream;
+        let currentCall;
+        const connectionStatus = document.querySelector('.connection-status');
+        
+        // Elementler
+        const shareBtn = document.getElementById('shareBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const connectBtn = document.getElementById('connectBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const connectionId = document.getElementById('connectionId');
+        const remoteIdInput = document.getElementById('remoteIdInput');
+        
+        // Bağlantı durumunu güncelleme
+        function updateConnectionStatus(status, message) {
+            const indicator = connectionStatus.querySelector('.w-3');
+            const text = connectionStatus.querySelector('span');
+            
+            indicator.classList.remove('bg-red-500', 'bg-green-500', 'bg-yellow-500');
+            
+            switch(status) {
+                case 'connected':
+                    indicator.classList.add('bg-green-500');
+                    break;
+                case 'sharing':
+                    indicator.classList.add('bg-yellow-500');
+                    break;
+                case 'error':
+                    indicator.classList.add('bg-red-500');
+                    break;
+                default:
+                    indicator.classList.add('bg-red-500');
+            }
+            
+            text.textContent = message;
+        }
+        
+        // PeerJS başlatma (ücretsiz sunucular kullanılıyor)
+        function initPeer() {
+            peer = new Peer({
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:global.stun.twilio.com:3478?transport=udp' }
+                    ]
+                }
+            });
+            
+            peer.on('open', (id) => {
+                connectionId.textContent = id;
+                updateConnectionStatus('connected', 'Bağlantı Hazır');
+            });
+            
+            peer.on('error', (err) => {
+                console.error('PeerJS hatası:', err);
+                updateConnectionStatus('error', 'Bağlantı Hatası');
+                
+                // Hata durumunda yeniden bağlanmayı dene
+                setTimeout(() => {
+                    if (!peer || peer.destroyed) {
+                        initPeer();
+                    }
+                }, 3000);
+            });
+            
+            peer.on('disconnected', () => {
+                updateConnectionStatus('error', 'Bağlantı Kesildi');
+                // Yeniden bağlanmayı dene
+                peer.reconnect();
+            });
+            
+            peer.on('connection', (conn) => {
+                conn.on('data', (data) => {
+                    console.log('Alınan veri:', data);
+                });
+            });
+            
+            peer.on('call', (call) => {
+                if (localStream) {
+                    call.answer(localStream);
+                    setupCall(call);
+                } else {
+                    console.log('Gelen çağrı ancak yerel akış yok');
+                    call.close();
+                }
+            });
+        }
+        
+        // Ekran paylaşımını başlat
+        async function startSharing() {
+            try {
+                localStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        cursor: "always",
+                        displaySurface: "monitor"
+                    },
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true
+                    }
+                });
+                
+                localVideo.srcObject = localStream;
+                shareBtn.disabled = true;
+                stopBtn.disabled = false;
+                shareBtn.classList.remove('pulse');
+                updateConnectionStatus('sharing', 'Ekran Paylaşılıyor');
+                
+                // PeerJS başlat
+                if (!peer || peer.disconnected || peer.destroyed) {
+                    initPeer();
+                }
+                
+                // Akış sonlandırıldığında temizlik yap
+                localStream.getVideoTracks()[0].onended = () => {
+                    stopSharing();
+                };
+                
+            } catch (err) {
+                console.error('Ekran paylaşım hatası:', err);
+                let errorMessage = 'Ekran paylaşımı başlatılamadı';
+                
+                if (err.name === 'NotAllowedError') {
+                    errorMessage = 'Ekran paylaşımı izni verilmedi';
+                } else if (err.name === 'NotSupportedError') {
+                    errorMessage = 'Tarayıcınız ekran paylaşımını desteklemiyor';
+                }
+                
+                alert(errorMessage + ': ' + err.message);
+                updateConnectionStatus('error', 'Paylaşım Hatası');
+            }
+        }
+        
+        // Ekran paylaşımını durdur
+        function stopSharing() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            
+            if (currentCall) {
+                currentCall.close();
+                currentCall = null;
+            }
+            
+            localVideo.srcObject = null;
+            shareBtn.disabled = false;
+            stopBtn.disabled = true;
+            shareBtn.classList.add('pulse');
+            
+            if (peer && !peer.destroyed) {
+                updateConnectionStatus('connected', 'Bağlantı Hazır');
+            } else {
+                updateConnectionStatus('error', 'Bağlantı Yok');
+            }
+        }
+        
+        // Bağlantı kurulumu
+        function setupCall(call) {
+            currentCall = call;
+            
+            call.on('stream', (remoteStream) => {
+                remoteVideo.srcObject = remoteStream;
+                updateConnectionStatus('sharing', 'Bağlantı Kuruldu');
+            });
+            
+            call.on('close', () => {
+                remoteVideo.srcObject = null;
+                currentCall = null;
+                updateConnectionStatus('connected', 'Bağlantı Hazır');
+            });
+            
+            call.on('error', (err) => {
+                console.error('Çağrı hatası:', err);
+                remoteVideo.srcObject = null;
+                currentCall = null;
+                updateConnectionStatus('error', 'Çağrı Hatası');
+            });
+        }
+        
+        // Bağlan butonu işlevi
+        function connectToPeer() {
+            const remoteId = remoteIdInput.value.trim();
+            if (!remoteId) {
+                alert('Lütfen geçerli bir ID girin');
+                return;
+            }
+            
+            if (!peer || peer.destroyed) {
+                alert('Önce bağlantı kur
