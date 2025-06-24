@@ -105,7 +105,7 @@
                         <h2 class="text-xl font-bold mb-4 flex items-center">
                             <i class="fas fa-desktop mr-2 text-primary"></i> Ekranınızı Paylaşın
                         </h2>
-                        <div class="video-container mb-4">
+                        <div class="video-container mb-4 relative">
                             <video id="localVideo" autoplay muted playsinline class="border-2 border-dashed border-slate-600"></video>
                             <div id="localVideoPlaceholder" class="absolute inset-0 flex items-center justify-center text-slate-400">
                                 <div class="text-center">
@@ -113,6 +113,9 @@
                                     <p>Paylaşım başlatın</p>
                                 </div>
                             </div>
+                            <button id="localFullscreenBtn" class="fullscreen-btn hidden">
+                                <i class="fas fa-expand"></i>
+                            </button>
                         </div>
                         <div class="flex flex-wrap gap-3">
                             <button id="startShareBtn" class="flex-1 bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center pulse">
@@ -188,8 +191,11 @@
                         <h2 class="text-xl font-bold mb-4 flex items-center">
                             <i class="fas fa-tv mr-2 text-primary"></i> Paylaşılan Ekran
                         </h2>
-                        <div class="video-container mb-4">
+                        <div class="video-container mb-4 relative">
                             <video id="remoteVideo" autoplay playsinline class="border-2 border-dashed border-slate-600"></video>
+                            <button id="remoteFullscreenBtn" class="fullscreen-btn hidden">
+                                <i class="fas fa-expand"></i>
+                            </button>
                         </div>
                         <div class="flex justify-between items-center">
                             <div class="text-sm text-slate-400 flex items-center">
